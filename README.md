@@ -36,6 +36,17 @@
 
 ---
 
+## 截图
+
+<div align="center">
+  <img src="screenshots/1-input.jpg" width="22%" alt="输入问题">
+  <img src="screenshots/2-method.jpg" width="22%" alt="选择方式">
+  <img src="screenshots/3-result.jpg" width="22%" alt="卦象结果">
+  <img src="screenshots/4-history.jpg" width="22%" alt="历史记录">
+</div>
+
+> 依次：输入问题 → 选择起卦方式 → 卦象解读结果 → 历史记录
+
 ## 运行方式
 
 ### 浏览器（PWA）
