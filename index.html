@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>易经占卜</title>
+
+  <!-- PWA Meta -->
+  <meta name="theme-color" content="#8B2500">
+  <meta name="description" content="以易经六十四卦为基本的占卜应用">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="易经占卜">
+  <link rel="apple-touch-icon" href="/icon.svg">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div id="app">
+
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="theme-toggle" aria-label="切换深浅色模式">🌙</button>
+
+    <!-- Settings Gear -->
+    <button id="btn-settings" class="settings-gear" aria-label="设置">⚙️</button>
+
+    <!-- ============================================================ -->
+    <!-- Phase: Question Input -->
+    <!-- ============================================================ -->
+    <section id="phase-input" class="phase">
+      <div class="inner">
+
+        <header class="app-header">
+          <div class="bagua-icon">☰</div>
+          <h1 class="app-title">易 经</h1>
+          <p class="app-subtitle">I Ching Divination</p>
+        </header>
+
+        <div class="card">
+          <label class="question-label" for="question-input">
+            你在想什么？
+          </label>
+          <textarea
+            id="question-input"
+            class="question-textarea"
+            placeholder="请输入你心中的疑问…&#10;比如：我该换工作吗？这段关系会如何发展？"
+            maxlength="300"
+            rows="4"
+          ></textarea>
+          <div class="char-count">
+            <span id="char-count-num">0</span>/300
+          </div>
+        </div>
+
+        <button id="btn-begin" class="btn btn-primary" disabled>
+          开始占卜
+        </button>
+
+        <button id="btn-show-history" class="btn btn-ghost">
+          查看历史记录
+        </button>
+
+        <p class="hint">
+          静心凝神，专注于你的问题，然后开始。
+        </p>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- Phase: Method Choice -->
+    <!-- ============================================================ -->
+    <section id="phase-method" class="phase hidden">
+      <div class="inner">
+
+        <header class="app-header compact">
+          <div class="bagua-icon small">☰</div>
+          <h2 class="app-title">选择方式</h2>
+        </header>
+
+        <div class="question-preview" id="question-preview-method">
+          <!-- filled by JS -->
+        </div>
+
+        <div class="method-cards">
+          <button class="method-card" id="btn-auto">
+            <div class="method-icon">⚊ ⚋ ⚊</div>
+            <h3 class="method-title">自动占卜</h3>
+            <p class="method-desc">由系统随机模拟三次抛硬币的过程，自动生成六爻卦象。</p>
+          </button>
+
+          <button class="method-card" id="btn-manual">
+            <div class="method-icon">✋ ✋ ✋</div>
+            <h3 class="method-title">手动占卜</h3>
+            <p class="method-desc">你亲手抛掷三枚硬币，逐次告诉我们每次的结果。</p>
+          </button>
+        </div>
+
+        <button id="btn-back-to-input" class="btn btn-ghost">← 返回修改问题</button>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- Phase: Auto Tossing (Animation) -->
+    <!-- ============================================================ -->
+    <section id="phase-auto-toss" class="phase hidden">
+      <div class="inner">
+
+        <header class="app-header compact">
+          <h2 class="app-title">占卜中…</h2>
+        </header>
+
+        <div class="toss-animation">
+          <div class="coins-container" id="coins-anim">
+            <div class="coin coin-1">●</div>
+            <div class="coin coin-2">●</div>
+            <div class="coin coin-3">●</div>
+          </div>
+          <p class="toss-status" id="toss-status-auto">正在投掷铜钱…</p>
+        </div>
+
+        <div class="lines-building" id="lines-building">
+          <!-- 6 lines built bottom-up via JS -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- Phase: Manual Tossing -->
+    <!-- ============================================================ -->
+    <section id="phase-manual-toss" class="phase hidden">
+      <div class="inner">
+
+        <header class="app-header compact">
+          <h2 class="app-title">手动占卜</h2>
+        </header>
+
+        <div class="toss-progress">
+          <span id="toss-progress-label">第 1 爻（共 6 爻，从下往上）</span>
+          <div class="progress-dots" id="progress-dots">
+            <span class="dot empty"></span>
+            <span class="dot empty"></span>
+            <span class="dot empty"></span>
+            <span class="dot empty"></span>
+            <span class="dot empty"></span>
+            <span class="dot empty"></span>
+          </div>
+        </div>
+
+        <p class="manual-instruction">请抛掷三枚硬币，然后选择本次结果：</p>
+
+        <div class="toss-options">
+          <button class="toss-option" data-heads="3">
+            <div class="coin-result">
+              <span class="coin-faces">● ● ●</span>
+              <span class="heads-count">三正（3 个正面）</span>
+            </div>
+            <span class="line-type-badge old-yang">老阳 ⚊</span>
+            <span class="line-note">变爻 → 阴</span>
+          </button>
+
+          <button class="toss-option" data-heads="2">
+            <div class="coin-result">
+              <span class="coin-faces">● ● ○</span>
+              <span class="heads-count">两正一反（2 个正面）</span>
+            </div>
+            <span class="line-type-badge yin">少阴 ⚋</span>
+            <span class="line-note">不变</span>
+          </button>
+
+          <button class="toss-option" data-heads="1">
+            <div class="coin-result">
+              <span class="coin-faces">● ○ ○</span>
+              <span class="heads-count">一正两反（1 个正面）</span>
+            </div>
+            <span class="line-type-badge yang">少阳 ⚊</span>
+            <span class="line-note">不变</span>
+          </button>
+
+          <button class="toss-option" data-heads="0">
+            <div class="coin-result">
+              <span class="coin-faces">○ ○ ○</span>
+              <span class="heads-count">三反（0 个正面）</span>
+            </div>
+            <span class="line-type-badge old-yin">老阴 ⚋</span>
+            <span class="line-note">变爻 → 阳</span>
+          </button>
+        </div>
+
+        <button id="btn-undo-toss" class="btn btn-ghost" style="display:none;">
+          ← 撤销上一次
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- Phase: Result -->
+    <!-- ============================================================ -->
+    <section id="phase-result" class="phase hidden">
+      <div class="inner">
+
+        <div class="result-header">
+          <div class="hexagram-symbol" id="hex-symbol"></div>
+          <div class="hexagram-info">
+            <h2 id="hex-name"></h2>
+            <p id="hex-english"></p>
+          </div>
+        </div>
+
+        <div class="question-preview" id="question-preview-result"></div>
+
+        <!-- Primary Hexagram -->
+        <div class="card result-card">
+          <div class="hexagram-display">
+            <div class="hex-lines" id="hex-lines-display"></div>
+            <div class="trigram-labels">
+              <span id="upper-trigram-label"></span>
+              <span id="lower-trigram-label"></span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="judgment-section">
+            <h3>卦辞</h3>
+            <p class="judgment-text" id="judgment-text"></p>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="image-section">
+            <h3>象传</h3>
+            <p class="image-text" id="image-text"></p>
+          </div>
+
+          <div id="changing-lines-section" class="changing-lines-section hidden">
+            <div class="divider"></div>
+            <h3>变爻</h3>
+            <div id="changing-lines-content"></div>
+
+            <div class="transformed-section hidden" id="transformed-section">
+              <h3>之卦</h3>
+              <div class="hexagram-display small">
+                <div class="hex-lines" id="transformed-lines-display"></div>
+              </div>
+              <p id="transformed-name"></p>
+              <p class="transformed-judgment" id="transformed-judgment"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advice -->
+        <div class="card advice-card">
+          <h3 class="advice-title">对你的启示</h3>
+          <div class="advice-content" id="advice-content"></div>
+        </div>
+
+        <!-- AI Insight -->
+        <div id="ai-section" class="ai-section hidden">
+
+          <div id="ai-hint" class="ai-hint">
+            <p>配置 API 后获取深度启示</p>
+            <button id="btn-ai-setup" class="btn btn-ghost">前往设置</button>
+          </div>
+
+          <button id="btn-insight" class="btn-insight">启示</button>
+
+          <div id="ai-loading" class="ai-loading hidden">
+            <div class="ai-loading-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <p>正在为你解读…</p>
+          </div>
+
+          <div id="ai-card" class="card ai-card hidden">
+            <div class="ai-content-text" id="ai-content"></div>
+          </div>
+
+          <div id="ai-error" class="ai-error hidden">
+            <p id="ai-error-msg"></p>
+            <button id="btn-ai-retry" class="btn btn-ghost">重试</button>
+          </div>
+        </div>
+
+        <button id="btn-restart" class="btn btn-primary">
+          再问一个问题
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- Phase: History -->
+    <!-- ============================================================ -->
+    <section id="phase-history" class="phase hidden">
+      <div class="inner">
+
+        <header class="app-header compact">
+          <div class="bagua-icon small">☰</div>
+          <h2 class="app-title">历史记录</h2>
+          <p class="app-subtitle">Past Divinations</p>
+        </header>
+
+        <div id="history-list" class="history-list">
+          <!-- filled by JS -->
+        </div>
+
+        <div id="history-empty" class="history-empty hidden">
+          <p class="empty-icon">☷</p>
+          <p class="empty-text">暂无记录</p>
+          <p class="empty-hint">每次完成的占卜都会自动保存在这里</p>
+        </div>
+
+        <button id="btn-back-from-history" class="btn btn-primary">
+          返回占卜
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- Settings Overlay -->
+    <!-- ============================================================ -->
+    <div id="settings-overlay" class="settings-overlay hidden">
+      <div class="settings-panel">
+        <h2>API 设置</h2>
+        <p class="api-hint-intro">连接任意兼容 OpenAI 接口的大模型服务。</p>
+
+        <div class="settings-field">
+          <label for="settings-api-key">API Key</label>
+          <input
+            type="password"
+            id="settings-api-key"
+            class="settings-input"
+            placeholder="sk-…"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="settings-field">
+          <label for="settings-base-url">Base URL</label>
+          <input
+            type="text"
+            id="settings-base-url"
+            class="settings-input"
+            placeholder="https://api.openai.com/v1"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="settings-field">
+          <label for="settings-model">模型名称</label>
+          <input
+            type="text"
+            id="settings-model"
+            class="settings-input"
+            placeholder="gpt-4o-mini"
+            autocomplete="off"
+          >
+        </div>
+
+        <details class="api-examples">
+          <summary>常用配置参考</summary>
+          <div class="api-examples-content">
+            <p><strong>OpenAI</strong><br>Base URL: https://api.openai.com/v1<br>模型: gpt-4o-mini / gpt-4o</p>
+            <p><strong>DeepSeek</strong><br>Base URL: https://api.deepseek.com/v1<br>模型: deepseek-chat</p>
+            <p><strong>Google Gemini</strong><br>Base URL: https://generativelanguage.googleapis.com/v1beta/openai<br>模型: gemini-2.0-flash</p>
+            <p><strong>硅基流动 (SiliconFlow)</strong><br>Base URL: https://api.siliconflow.cn/v1<br>模型: deepseek-ai/DeepSeek-V3</p>
+            <p><strong>Ollama 本地</strong><br>Base URL: http://localhost:11434/v1<br>模型: qwen2.5:7b</p>
+          </div>
+        </details>
+
+        <p class="settings-privacy">数据仅保存在浏览器本地，Key 仅用于 API 调用。</p>
+
+        <div id="settings-test-result" class="settings-test-result hidden"></div>
+
+        <div class="settings-actions">
+          <button id="btn-save-settings" class="btn btn-primary">保存并测试</button>
+          <button id="btn-close-settings" class="btn btn-ghost">取消</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="iching-data.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/advice-engine.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="app.js"></script>
+
+  <!-- Register Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
