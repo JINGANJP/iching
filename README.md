@@ -61,6 +61,7 @@ node server.js
 ### Android APK
 
 点击右侧release下载
+https://github.com/JINGANJP/iching/releases
 
 APK 为 WebView 壳，加载本地 HTML/CSS/JS，不需要网络权限即可运行全部核心功能。
 
