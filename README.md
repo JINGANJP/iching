@@ -60,11 +60,7 @@ node server.js
 
 ### Android APK
 
-```bash
-bash iching-apk/build-apk.sh
-# 输出 iching.apk (~96KB)
-adb install -r iching.apk
-```
+点击右侧release下载
 
 APK 为 WebView 壳，加载本地 HTML/CSS/JS，不需要网络权限即可运行全部核心功能。
 
