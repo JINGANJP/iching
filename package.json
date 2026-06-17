@@ -1,0 +1,17 @@
+{
+  "name": "iching-master",
+  "version": "1.0.0",
+  "description": "一个以易经六十四卦为核心的传统文化应用。输入你正在思考的问题，通过模拟三枚铜钱起卦，获得卦辞、爻辞、体用生克分析及个性化解读。",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "sharp": "^0.35.1"
+  }
+}
