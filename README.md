@@ -51,10 +51,7 @@
 
 ### 浏览器（PWA）
 
-```bash
-node server.js
-# 打开 http://localhost:8088
-```
+https://JINGANJP.github.io/iching
 
 支持 PWA 安装：手机浏览器打开 → 添加到主屏幕 → 离线可用。
 
